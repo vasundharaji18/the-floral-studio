@@ -1,0 +1,30 @@
+{% extends 'index.html' %}
+{% block content %}
+<div style="min-height: 100vh; background: url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1470&q=80') no-repeat center center/cover; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif;">
+  <div style="background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); padding: 40px 30px; border-radius: 15px; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2); width: 100%; max-width: 400px;">
+
+    <h2 style="font-size: 28px; font-weight: 600; color: #2f855a; text-align: center; margin-bottom: 25px;">
+      🌸 Welcome Back
+    </h2>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div style="margin-bottom: 20px;">
+        {{ form.as_p }}
+      </div>
+      <button type="submit" style="width: 100%; background-color: #38a169; border: none; color: white; padding: 12px; font-size: 16px; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease;">
+        Login
+      </button>
+    </form>
+
+    <p style="margin-top: 15px; text-align: center;">
+      <a href="{% url 'password_reset' %}" style="color: #2b6cb0; text-decoration: none;">Forgot Password?</a>
+    </p>
+
+    <p style="margin-top: 10px; text-align: center; color: #4a5568;">
+      Don’t have an account?
+      <a href="{% url 'signup' %}" style="color: #2b6cb0; font-weight: 500; text-decoration: none;">Sign up</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

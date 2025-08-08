@@ -1,0 +1,415 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ site.site_name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css"/>
+
+     <!--  Footer CSS -->
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+    .swiper {
+      width: 100%;
+      height: 100vh;
+    }
+    .slide-content {
+      position: absolute;
+      top: 50%;
+      left: 10%;
+      color: white;
+      transform: translateY(-50%);
+      z-index: 10;
+    }
+    .swiper-slide {
+      position: relative;
+      background-size: cover;
+      background-position: center;
+    }
+  </style>
+
+  <style>
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 1s ease-out both;
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 2s ease-in both;
+}
+</style>
+
+
+<style>
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+  .delay-100 {
+    animation-delay: 0.1s;
+  }
+  .delay-200 {
+    animation-delay: 0.2s;
+  }
+</style>
+
+<style>
+  .custom-swiper-btn {
+    width: 32px;
+    height: 32px;
+    background-color: #22c55e; /* Tailwind green-500 */
+    color: white;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .custom-swiper-btn:hover {
+    background-color: #16a34a; /* green-600 */
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+  }
+
+  /* Override Swiper default arrow styles */
+  .swiper-button-prev::after,
+  .swiper-button-next::after {
+    font-size: 16px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body class="bg-white text-gray-900">
+
+<!-- ✅ Navbar -->
+<nav class="bg-white shadow-md fixed w-full z-50 top-0 left-0">
+   <div class="max-w-screen-xl mx-auto px-4 flex justify-between items-center h-16">
+    <!-- Logo -->
+    <div class="text-xl font-bold flex items-center gap-2">
+      <a href="/">
+        <img src="{{ site.logo.url }}" alt="Logo" class="h-10">
+      </a>
+    </div>
+
+    <!-- Desktop Menu -->
+    <ul class="hidden md:flex gap-6 items-center">
+  {% for link in nav_links %}
+    <li><a href="{{ link.url }}" class="text-gray-700 hover:text-blue-600">{{ link.name }}</a></li>
+  {% endfor %}
+
+  <li>
+    <a href="{% url 'cart_view' %}" class="relative">
+      🛒 Cart
+      {% if cart_items_count %}
+        <span class="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
+          {{ cart_items_count }}
+        </span>
+      {% endif %}
+    </a>
+  </li>
+
+  {% if user.is_authenticated %}
+    <li><a href="{% url 'profile' %}" class="text-gray-700 hover:text-blue-600">Profile</a></li>
+    
+    <!-- 🔥 Use POST form for logout -->
+    <li>
+      <form method="POST" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="text-gray-700 hover:text-red-600">Logout</button>
+      </form>
+    </li>
+  {% else %}
+    <li><a href="{% url 'login' %}" class="text-gray-700 hover:text-blue-600">Login</a></li>
+    <li><a href="{% url 'signup' %}" class="text-gray-700 hover:text-blue-600">Signup</a></li>
+  {% endif %}
+</ul>
+
+
+    <!-- Mobile Menu Button -->
+    <div class="md:hidden">
+      <button id="menu-toggle" class="text-2xl">&#9776;</button>
+    </div>
+  </div>
+
+  <!-- Mobile Dropdown -->
+  <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-4 space-y-2">
+    {% for link in nav_links %}
+      <a href="{{ link.url }}" class="block text-gray-700 hover:text-blue-600">{{ link.name }}</a>
+    {% endfor %}
+    <a href="{% url 'cart_view' %}" class="block relative">🛒 Cart</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'profile' %}" class="block text-gray-700 hover:text-blue-600">Profile</a>
+      <a href="{% url 'logout' %}" class="block text-gray-700 hover:text-red-600">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}" class="block text-gray-700 hover:text-blue-600">Login</a>
+      <a href="{% url 'signup' %}" class="block text-gray-700 hover:text-blue-600">Signup</a>
+    {% endif %}
+  </div>
+</nav>
+
+{% if messages %}
+  <div class="fixed top-5 right-5 z-50 space-y-2">
+    {% for message in messages %}
+      <div class="px-4 py-3 rounded shadow-lg text-white 
+                  {% if message.tags == 'success' %}bg-green-600
+                  {% elif message.tags == 'error' %}bg-red-600
+                  {% elif message.tags == 'info' %}bg-blue-600
+                  {% else %}bg-gray-800{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- ✅ Hero Slider -->
+<!-- Full Width & Height Swiper Slider -->
+<div class="w-full h-screen overflow-hidden">
+  <div class="swiper mySwiper w-full h-full">
+    <div class="swiper-wrapper">
+
+      {% for slide in hero_slides %}
+        {% if slide.image %}
+          <div class="swiper-slide relative w-full h-screen" 
+               style="background-image: url('{{ slide.image.url }}'); background-size: cover; background-position: center;">
+
+            <!-- Overlay -->
+            <div class="absolute inset-0 bg-black bg-opacity-50 z-10"></div>
+
+            <!-- Content -->
+            <div class="absolute inset-0 flex items-center justify-center z-20 text-center text-white px-4">
+              <div class="max-w-4xl w-full">
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">{{ slide.headline }}</h2>
+
+                {% if slide.subtext %}
+                  <p class="text-base sm:text-lg md:text-xl mb-4">{{ slide.subtext }}</p>
+                {% endif %}
+
+                {% if slide.button_text and slide.button_link %}
+                  <a href="{{ slide.button_link }}"
+                     class="inline-block mt-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-300">
+                    {{ slide.button_text }}
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+    </div>
+
+    <!-- Swiper Controls -->
+    <div class="swiper-button-next text-white"></div>
+    <div class="swiper-button-prev text-white"></div>
+    <div class="swiper-pagination"></div>
+  </div>
+</div>
+
+
+
+
+
+<!-- ✅ Product Grid -->
+<section class="products max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+    {% for product in products %}
+    <div class="product text-center">
+        <img src="{{ product.image.url }}" class="w-full h-48 object-cover rounded">
+        <h3 class="mt-2 text-lg font-semibold">{{ product.name }}</h3>
+        <p class="text-green-600">₹{{ product.price }}</p>
+        <small class="text-gray-500">{{ product.category.name }}</small>
+        <form method="post" action="{% url 'add_to_cart' product.id %}" class="mt-2">
+            {% csrf_token %}
+            <button type="submit" class="px-4 py-1 bg-blue-500 text-white rounded">Add to Cart</button>
+        </form>
+    </div>
+    {% endfor %}
+</section>
+
+<!-- ✅ Secondary Hero Section -->
+<section class="flex flex-col md:flex-row items-center gap-8 max-w-7xl mx-auto px-4 py-12">
+    <div class="md:w-1/2">
+        <h2 class="text-2xl font-bold">{{ secondary_hero.heading }}</h2>
+        <p class="mt-2 text-gray-700">{{ secondary_hero.sub_text }}</p>
+    </div>
+    <div class="md:w-1/2">
+        <img src="{{ secondary_hero.image.url }}" alt="Secondary Hero" class="w-full h-auto rounded">
+    </div>
+</section>
+
+<!-- ✅ Events Slider -->
+<section class="pb-2 pt-1 px-4 sm:px-6 md:px-10 lg:px-20 bg-gradient-to-br from-green-50 via-white to-green-100">
+  <h2 class="text-3xl sm:text-4xl font-extrabold text-center text-green-800 mb-6 tracking-wide">
+    🌿 Our Featured Events
+  </h2>
+
+  <div class="swiper myEventSwiper">
+    <div class="swiper-wrapper">
+      {% for event in events %}
+      <div class="swiper-slide p-3 sm:p-5">
+        <div class="flex flex-col md:flex-row items-center bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-green-100 p-6 sm:p-8 gap-6 hover:shadow-green-300 transition duration-300">
+          <div class="md:w-1/2 w-full overflow-hidden rounded-2xl">
+            <img src="{{ event.image.url }}" alt="{{ event.title }}" class="rounded-2xl w-full h-auto object-cover hover:scale-105 transition duration-500" />
+          </div>
+          <div class="md:w-1/2 w-full text-center md:text-left">
+            <h3 class="text-2xl sm:text-3xl font-bold text-green-700 mb-3">{{ event.title }}</h3>
+            <p class="text-gray-700 text-base sm:text-lg leading-relaxed mb-3">{{ event.description }}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Swiper Navigation -->
+    <div class="flex justify-center mt-4 gap-4">
+      <div class="swiper-button-prev custom-swiper-btn"></div>
+      <div class="swiper-button-next custom-swiper-btn"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ✅ Newsletter Section -->
+<section class="pt-4 pb-10 bg-gradient-to-r from-green-100 via-white to-green-100 text-center">
+  <div class="max-w-3xl mx-auto px-4">
+    <h2 class="text-4xl font-extrabold text-gray-800 mb-3 animate-fade-in-up">Stay Updated!</h2>
+    <p class="text-lg text-gray-600 mb-6 animate-fade-in-up">Subscribe to our newsletter for the latest offers & events.</p>
+    
+    <form method="POST" action="{% url 'subscribe_newsletter' %}" class="flex gap-2">
+      {% csrf_token %}
+      <input type="email" name="email" required placeholder="Enter your email"
+            class="px-4 py-2 border border-gray-300 rounded-lg w-full" />
+      <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+        Subscribe
+      </button>
+    </form>
+
+    {% if messages %}
+    <div class="fixed top-5 right-5 z-50 space-y-2">
+      {% for message in messages %}
+        <div class="bg-green-500 text-white font-semibold px-6 py-3 rounded shadow-lg animate-bounce-in-down">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+
+
+<footer class="bg-gray-900 text-white py-10">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Quick Links -->
+      <div>
+        <h3 class="text-xl font-semibold mb-4">Quick Links</h3>
+        <ul class="text-sm text-gray-300 space-y-2">
+          <li><a href="/" class="hover:text-white">Home</a></li>
+          <li><a href="/about/" class="hover:text-white">About</a></li>
+          <li><a href="/contact/" class="hover:text-white">Contact</a></li>
+        </ul>
+      </div>
+
+    
+
+      <!-- Social Links -->
+      <div>
+        <h3 class="text-xl font-semibold mb-4">Follow Us</h3>
+        <div class="flex space-x-4 text-2xl">
+          {% if footer.facebook_url %}
+            <a href="{{ footer.facebook_url }}" target="_blank" class="hover:text-blue-500"><i class="fab fa-facebook"></i></a>
+          {% endif %}
+          {% if footer.instagram_url %}
+            <a href="{{ footer.instagram_url }}" target="_blank" class="hover:text-pink-500"><i class="fab fa-instagram"></i></a>
+          {% endif %}
+          {% if footer.linkedin_url %}
+            <a href="{{ footer.linkedin_url }}" target="_blank" class="hover:text-blue-400"><i class="fab fa-linkedin"></i></a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </footer>
+<!-- ✅ JS Scripts -->
+  <!-- Toggle Script -->
+
+<script>
+  const menuBtn = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  menuBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+  });
+</script>
+ 
+<!-- Swiper JS -->
+
+<script>
+  // Hide flash messages after 3 seconds
+  setTimeout(() => {
+    const messages = document.querySelectorAll('.fixed.top-5');
+    messages.forEach(msg => msg.remove());
+  }, 3000);
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+  var swiper = new Swiper(".mySwiper", {
+    loop: true,
+    autoplay: {
+      delay: 4000,
+      disableOnInteraction: false,
+    },
+    pagination: {
+      el: ".swiper-pagination",
+      clickable: true,
+    },
+    navigation: {
+      nextEl: ".swiper-button-next",
+      prevEl: ".swiper-button-prev",
+    },
+  });
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+<script>
+  var swiper = new Swiper(".myEventSwiper", {
+    loop: true,
+    navigation: {
+      nextEl: ".swiper-button-next",
+      prevEl: ".swiper-button-prev",
+    },
+    spaceBetween: 20,
+    slidesPerView: 1,
+    breakpoints: {
+      768: {
+        slidesPerView: 1,
+      },
+    },
+  });
+</script>
+
+</body>
+</html>

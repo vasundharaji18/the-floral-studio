@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}The Floral Studio{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script> <!-- Replace with your FA kit -->
+</head>
+<body class="bg-white text-gray-800">
+
+  <!-- ✅ Navbar -->
+  <nav class="bg-white shadow-md fixed w-full z-50 top-0 left-0">
+    <div class="max-w-screen-xl mx-auto px-4 flex justify-between items-center h-16">
+      <!-- Logo -->
+      <div class="text-xl font-bold flex items-center gap-2">
+        <a href="/">
+        {% if site_settings and site_settings.logo %}
+  <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" class="h-10 w-auto">
+{% else %}
+  <span class="text-xl font-bold text-green-800">{{ site_settings.site_name }}</span>
+{% endif %}
+
+        </a>
+      </div>
+
+      <!-- Desktop Menu -->
+      <ul class="hidden md:flex gap-6 items-center">
+        {% for link in nav_links %}
+          <li><a href="{{ link.url }}" class="text-gray-700 hover:text-blue-600">{{ link.name }}</a></li>
+        {% endfor %}
+        <li>
+          <a href="{% url 'cart_view' %}" class="relative">
+            🛒 Cart
+            {% if cart_items_count %}
+              <span class="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
+                {{ cart_items_count }}
+              </span>
+            {% endif %}
+          </a>
+        </li>
+
+       {% if user.is_authenticated %}
+    <li><a href="{% url 'profile' %}" class="text-gray-700 hover:text-blue-600">Profile</a></li>
+    
+    <!-- 🔥 Use POST form for logout -->
+    <li>
+      <form method="POST" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="text-gray-700 hover:text-red-600">Logout</button>
+      </form>
+    </li>
+  {% else %}
+    <li><a href="{% url 'login' %}" class="text-gray-700 hover:text-blue-600">Login</a></li>
+    <li><a href="{% url 'signup' %}" class="text-gray-700 hover:text-blue-600">Signup</a></li>
+  {% endif %}
+
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden">
+        <button id="menu-toggle" class="text-2xl">&#9776;</button>
+      </div>
+    </div>
+
+    <!-- Mobile Dropdown -->
+    <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-4 space-y-2">
+      {% for link in nav_links %}
+        <a href="{{ link.url }}" class="block text-gray-700 hover:text-blue-600">{{ link.name }}</a>
+      {% endfor %}
+      <a href="{% url 'cart_view' %}" class="block">🛒 Cart</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}" class="block text-gray-700 hover:text-blue-600">Profile</a>
+        <form method="POST" action="{% url 'logout' %}">
+  {% csrf_token %}
+  <button type="submit" class="text-sm font-medium text-gray-800 hover:text-green-600">Logout</button>
+</form>
+      {% else %}
+        <a href="{% url 'login' %}" class="block text-gray-700 hover:text-blue-600">Login</a>
+        <a href="{% url 'signup' %}" class="block text-gray-700 hover:text-blue-600">Signup</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- ✅ Flash Messages -->
+  {% if messages %}
+    <div class="fixed top-20 right-5 z-50 space-y-2">
+      {% for message in messages %}
+        <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-lg shadow-md">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- ✅ Main Content -->
+  <main class="pt-20">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ✅ Footer -->
+  <footer class="bg-gray-900 text-white py-10">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Quick Links -->
+      <div>
+        <h3 class="text-xl font-semibold mb-4">Quick Links</h3>
+        <ul class="text-sm text-gray-300 space-y-2">
+          <li><a href="/" class="hover:text-white">Home</a></li>
+          <li><a href="/about/" class="hover:text-white">About</a></li>
+          <li><a href="/contact/" class="hover:text-white">Contact</a></li>
+        </ul>
+      </div>
+
+    
+
+      <!-- Social Links -->
+      <div>
+        <h3 class="text-xl font-semibold mb-4">Follow Us</h3>
+        <div class="flex space-x-4 text-2xl">
+          {% if footer.facebook_url %}
+            <a href="{{ footer.facebook_url }}" target="_blank" class="hover:text-blue-500"><i class="fab fa-facebook"></i></a>
+          {% endif %}
+          {% if footer.instagram_url %}
+            <a href="{{ footer.instagram_url }}" target="_blank" class="hover:text-pink-500"><i class="fab fa-instagram"></i></a>
+          {% endif %}
+          {% if footer.linkedin_url %}
+            <a href="{{ footer.linkedin_url }}" target="_blank" class="hover:text-blue-400"><i class="fab fa-linkedin"></i></a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ✅ Toast Message (Optional) -->
+  <div id="toast-msg" class="fixed bottom-6 right-6 z-50 hidden bg-green-600 text-white font-medium px-5 py-3 rounded-lg shadow-xl transition-all duration-500 opacity-0">
+    Message here
+  </div>
+
+  <!-- ✅ Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+  <script>
+    // Auto-hide flash messages
+    setTimeout(() => {
+      const messages = document.querySelectorAll('.fixed.top-20');
+      messages.forEach(msg => msg.remove());
+    }, 3000);
+
+    // Toggle mobile menu
+    document.getElementById("menu-toggle")?.addEventListener("click", () => {
+      const menu = document.getElementById("mobile-menu");
+      if (menu) menu.classList.toggle("hidden");
+    });
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

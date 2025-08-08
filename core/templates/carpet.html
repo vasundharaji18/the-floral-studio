@@ -1,0 +1,47 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="bg-gray-100 min-h-screen py-10 px-4">
+  <h2 class="text-4xl font-bold text-center text-gray-800 mb-10">Explore Our Carpets</h2>
+
+  <!-- Carpet Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+    {% for carpet in page_obj %}
+    <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition duration-300 overflow-hidden">
+      <img src="{{ carpet.image.url }}" alt="{{ carpet.title }}" class="w-full h-60 object-cover">
+      <div class="p-5">
+        <h3 class="text-xl font-semibold text-gray-800 mb-1">{{ carpet.title }}</h3>
+        <p class="text-lg text-gray-600 mb-4">₹{{ carpet.price }}</p>
+
+        <form method="post" action="{% url 'add_to_cart' carpet.id %}">
+          {% csrf_token %}
+          <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-300">
+            Add to Cart
+          </button>
+        </form>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-span-3 text-center text-gray-500 text-lg">
+      No carpets available.
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="mt-12 flex justify-center space-x-4">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-200 transition">← Previous</a>
+    {% endif %}
+
+    <span class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg">
+      Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </span>
+
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-200 transition">Next →</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

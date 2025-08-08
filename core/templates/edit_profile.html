@@ -1,0 +1,68 @@
+{% extends 'index.html' %}
+{% block content %}
+<style>
+  .form-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(to bottom right, #fef9ff, #e0f7fa);
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  .form-box {
+    background: #ffffff;
+    padding: 40px 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .form-box h2 {
+    font-size: 26px;
+    font-weight: 600;
+    color: #4c1d95;
+    text-align: center;
+    margin-bottom: 25px;
+  }
+
+  .form-box input {
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 15px;
+  }
+
+  .form-box button {
+    width: 100%;
+    background-color: #7c3aed;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .form-box button:hover {
+    background-color: #5b21b6;
+  }
+</style>
+
+<div class="form-container">
+  <form method="POST" class="form-box">
+    {% csrf_token %}
+    <h2>Edit Profile</h2>
+
+    <input type="text" name="username" value="{{ request.user.username }}" placeholder="Username" required>
+    <input type="email" name="email" value="{{ request.user.email }}" placeholder="Email" required>
+
+    <button type="submit">Save Changes</button>
+  </form>
+</div>
+{% endblock %}

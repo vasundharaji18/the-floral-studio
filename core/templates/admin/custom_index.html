@@ -1,0 +1,124 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<h1>{{ site_header }}</h1>
+
+<style>
+  .dashboard-cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+  }
+  .card {
+    flex: 1;
+    min-width: 200px;
+    background: #e0f7fa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgb(0 0 0 / 0.1);
+    transition: box-shadow 0.3s ease;
+    cursor: pointer;
+    text-align: center;
+  }
+  .card:hover {
+    box-shadow: 0 8px 16px rgb(0 0 0 / 0.2);
+  }
+  .card h2 {
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .card p {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 0;
+  }
+  .card a {
+    text-decoration: none;
+    color: inherit;
+  }
+</style>
+
+<div class="dashboard-cards">
+  <div class="card">
+    <a href="{% url 'admin:yourapp_sellingdetail_changelist' %}">
+      <h2>Total Selling</h2>
+      <p>{{ total_selling }}</p>
+    </a>
+  </div>
+  <div class="card" style="background: #f1f8e9;">
+    <a href="{% url 'admin:yourapp_buyingdetail_changelist' %}">
+      <h2>Total Buying</h2>
+      <p>{{ total_buying }}</p>
+    </a>
+  </div>
+  <div class="card" style="background: #fff3e0;">
+    <a href="{% url 'admin:yourapp_paymentdetail_changelist' %}">
+      <h2>Total Payments</h2>
+      <p>{{ total_payments }}</p>
+    </a>
+  </div>
+  <div class="card" style="background: #fce4ec;">
+    <a href="{% url 'admin:yourapp_orderdetail_changelist' %}">
+      <h2>Total Orders</h2>
+      <p>{{ total_orders }}</p>
+    </a>
+  </div>
+</div>
+
+<h2>Sales Overview</h2>
+<canvas id="sellingChart" width="400" height="200"></canvas>
+
+<h2>Orders Overview</h2>
+<canvas id="ordersChart" width="400" height="200"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  const months = {{ months|safe }};
+  const sellingCounts = {{ selling_counts|safe }};
+  const orderCounts = {{ order_counts|safe }};
+
+  const ctxSelling = document.getElementById('sellingChart').getContext('2d');
+  const sellingChart = new Chart(ctxSelling, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Selling Orders',
+        data: sellingCounts,
+        borderColor: 'rgba(54, 162, 235, 1)',
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        fill: true,
+        tension: 0.4,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  const ctxOrders = document.getElementById('ordersChart').getContext('2d');
+  const ordersChart = new Chart(ctxOrders, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Orders',
+        data: orderCounts,
+        backgroundColor: 'rgba(255, 99, 132, 0.7)',
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+</script>
+{% endblock %}
