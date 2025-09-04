@@ -1,228 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}The Floral Studio{% endblock %}</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}The Floral Studio{% endblock %}</title>
 
-  <!-- Swiper CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- FontAwesome Free CDN -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        #whatsapp-button {
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #whatsapp-button:hover {
+            transform: scale(1.1);
+        }
+    </style>
 </head>
-<body class="bg-white text-gray-800">
+<body class="bg-white text-gray-800 antialiased">
 
-  <!-- Navbar -->
-  <nav class="bg-white shadow-md fixed w-full z-50 top-0 left-0">
-    <div class="max-w-screen-xl mx-auto px-4 flex justify-between items-center h-16">
-      <!-- Logo -->
-      <div class="text-xl font-bold flex items-center gap-2">
-        <a href="/">
-          {% if site_settings and site_settings.logo %}
-            <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" class="h-10 w-auto" />
-          {% else %}
-            <span class="text-xl font-bold text-green-800">{{ site_settings.site_name }}</span>
-          {% endif %}
-        </a>
-      </div>
+    <nav class="bg-white shadow-md fixed w-full z-50 top-0 left-0">
+        <div class="max-w-screen-xl mx-auto px-4 flex justify-between items-center h-16">
+            <div class="flex items-center gap-2">
+                <a href="/" class="flex items-center space-x-2">
+                    {% if site_settings and site_settings.logo %}
+                        <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" class="h-10 w-auto" />
+                    {% else %}
+                        <span class="text-xl font-bold text-green-800">{{ site_settings.site_name }}</span>
+                    {% endif %}
+                </a>
+            </div>
 
-      <!-- Desktop Menu -->
-      <ul class="hidden md:flex gap-6 items-center">
-        <li><a href="{% url 'home' %}" class="text-gray-700 hover:text-blue-600">Home</a></li>
-        <li>
-        {% for link in nav_links %}
-          <li><a href="{{ link.url }}" class="text-gray-700 hover:text-blue-600">{{ link.name }}</a></li>
-        {% endfor %}
-        <li>
-          <a href="{% url 'cart_view' %}" class="relative">
-            <i class="fas fa-shopping-cart"></i> Cart
-            {% if cart_items_count %}
-              <span class="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
-                {{ cart_items_count }}
-              </span>
-            {% endif %}
-          </a>
-        </li>
+            <ul class="hidden md:flex gap-6 items-center">
+                <li><a href="{% url 'home' %}" class="text-gray-700 hover:text-blue-600 transition-colors">Home</a></li>
+                {% for link in nav_links %}
+                    <li><a href="{{ link.url }}" class="text-gray-700 hover:text-blue-600 transition-colors">{{ link.name }}</a></li>
+                {% endfor %}
 
-        {% if user.is_authenticated %}
-          <li><a href="{% url 'profile' %}" class="text-gray-700 hover:text-blue-600">Profile</a></li>
-          <li>
-            <form method="POST" action="{% url 'logout' %}">
-              {% csrf_token %}
-              <button type="submit" class="text-gray-700 hover:text-red-600">Logout</button>
+                <li>
+                    <button id="search-toggle-desktop" aria-label="Search" class="text-gray-700 hover:text-blue-600 text-lg transition-colors">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </li>
+                <li>
+                    <a href="{% url 'cart_view' %}" class="relative text-gray-700 hover:text-blue-600 text-lg transition-colors">
+                        <i class="fas fa-shopping-cart"></i>
+                        {% if cart_items_count %}
+                            <span class="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full ring-2 ring-white">
+                                {{ cart_items_count }}
+                            </span>
+                        {% endif %}
+                    </a>
+                </li>
+
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'profile' %}" class="text-gray-700 hover:text-blue-600 transition-colors">Profile</a></li>
+                    <li>
+                        <form method="POST" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="text-gray-700 hover:text-red-600 transition-colors">Logout</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'login' %}" class="text-gray-700 hover:text-blue-600 transition-colors">Login</a></li>
+                    <li><a href="{% url 'signup' %}" class="text-gray-700 hover:text-blue-600 transition-colors">Signup</a></li>
+                {% endif %}
+            </ul>
+
+            <div class="md:hidden flex items-center gap-4">
+                <a href="{% url 'cart_view' %}" class="relative text-gray-700 hover:text-blue-600 text-lg">
+                    <i class="fas fa-shopping-cart"></i>
+                    {% if cart_items_count %}
+                        <span class="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full ring-2 ring-white">
+                            {{ cart_items_count }}
+                        </span>
+                    {% endif %}
+                </a>
+                <button id="search-toggle-mobile" aria-label="Search" class="text-gray-700 hover:text-blue-600 text-lg">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button id="menu-toggle" aria-label="Toggle navigation menu" class="text-2xl focus:outline-none text-gray-700 hover:text-blue-600 transition-colors">&#9776;</button>
+            </div>
+        </div>
+
+        <div id="search-bar-container" class="hidden px-4 pt-2 pb-4 bg-white shadow-md">
+            <form action="{% url 'search' %}" method="get" class="flex items-center space-x-2">
+                <div class="relative flex items-center bg-gray-100 rounded-full w-full">
+                    <i class="fas fa-search text-gray-500 absolute left-4"></i>
+                    <input type="text" name="q" placeholder="Search products..." class="bg-gray-100 text-gray-800 focus:outline-none w-full py-2 pl-10 pr-4 rounded-full" />
+                </div>
+                <button type="button" id="mic-button" aria-label="Voice search" class="p-2 bg-gray-800 text-white rounded-full hover:bg-gray-700 transition">
+                    <i class="fas fa-microphone"></i>
+                </button>
             </form>
-          </li>
-        {% else %}
-          <li><a href="{% url 'login' %}" class="text-gray-700 hover:text-blue-600">Login</a></li>
-          <li><a href="{% url 'signup' %}" class="text-gray-700 hover:text-blue-600">Signup</a></li>
-        {% endif %}
-      </ul>
-
-      <!-- Mobile Menu Button -->
-      <div class="md:hidden">
-        <button id="menu-toggle" class="text-2xl focus:outline-none">&#9776;</button>
-      </div>
-    </div>
-
-    <!-- Mobile Dropdown -->
-    <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-4 space-y-2 bg-white shadow-md">
-      {% for link in nav_links %}
-        <a href="{{ link.url }}" class="block text-gray-700 hover:text-blue-600">{{ link.name }}</a>
-      {% endfor %}
-      <a href="{% url 'cart_view' %}" class="block text-gray-700 hover:text-blue-600"><i class="fas fa-shopping-cart"></i> Cart</a>
-      {% if user.is_authenticated %}
-        <a href="{% url 'profile' %}" class="block text-gray-700 hover:text-blue-600">Profile</a>
-        <form method="POST" action="{% url 'logout' %}">
-          {% csrf_token %}
-          <button type="submit" class="w-full text-left text-gray-700 hover:text-red-600">Logout</button>
-        </form>
-      {% else %}
-        <a href="{% url 'login' %}" class="block text-gray-700 hover:text-blue-600">Login</a>
-        <a href="{% url 'signup' %}" class="block text-gray-700 hover:text-blue-600">Signup</a>
-      {% endif %}
-    </div>
-  </nav>
-
-  <!-- Flash Messages -->
-  {% if messages %}
-    <div class="fixed top-20 right-5 z-50 space-y-2">
-      {% for message in messages %}
-        <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-lg shadow-md">
-          {{ message }}
         </div>
-      {% endfor %}
-    </div>
-  {% endif %}
 
-  <!-- Main Content -->
-  <main class="pt-20">
-    {% block content %}{% endblock %}
-
-    <!-- About Section -->
-    {% if about %}
-    <section id="about" class="py-16 bg-gray-100">
-      <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
-        {% if about.image %}
-          <div>
-            <img src="{{ about.image.url }}" alt="{{ about.title }}" class="rounded-xl shadow-md" />
-          </div>
-        {% endif %}
-        <div>
-          <h2 class="text-3xl font-bold mb-4">{{ about.title }}</h2>
-          <p class="text-lg text-gray-700 leading-relaxed">{{ about.content }}</p>
+        <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-4 space-y-2 bg-white shadow-md">
+            <a href="{% url 'home' %}" class="block text-gray-700 hover:text-blue-600">Home</a>
+            {% for link in nav_links %}
+                <a href="{{ link.url }}" class="block text-gray-700 hover:text-blue-600">{{ link.name }}</a>
+            {% endfor %}
+            <a href="{% url 'cart_view' %}" class="block text-gray-700 hover:text-blue-600"><i class="fas fa-shopping-cart mr-2"></i>Cart</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="block text-gray-700 hover:text-blue-600">Profile</a>
+                <form method="POST" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full text-left text-gray-700 hover:text-red-600">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="block text-gray-700 hover:text-blue-600">Login</a>
+                <a href="{% url 'signup' %}" class="block text-gray-700 hover:text-blue-600">Signup</a>
+            {% endif %}
         </div>
-      </div>
-    </section>
+    </nav>
+
+    {% if messages %}
+        <div class="fixed top-20 right-5 z-50 space-y-2">
+            {% for message in messages %}
+                <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-lg shadow-md">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
     {% endif %}
-  </main>
 
-  <!-- Footer -->
-  <footer class="bg-gray-900 text-white py-10 mt-10">
-    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-      <!-- Quick Links -->
-      <div>
-        <h3 class="text-xl font-semibold mb-4">Quick Links</h3>
-        <ul class="text-sm text-gray-300 space-y-2">
-          <li><a href="/" class="hover:text-white">Home</a></li>
-          <li><a href="/about/" class="hover:text-white">About</a></li>
-          <li><a href="/contact/" class="hover:text-white">Contact</a></li>
-        </ul>
-      </div>
+    <main class="pt-20">
+        {% block content %}{% endblock %}
 
-      <!-- Social Links -->
-      <div>
-        <h3 class="text-xl font-semibold mb-4">Follow Us</h3>
-        <div class="flex space-x-4 text-2xl">
-          {% if footer.facebook_url %}
-            <a href="{{ footer.facebook_url }}" target="_blank" class="hover:text-blue-500"><i class="fab fa-facebook"></i></a>
-          {% endif %}
-          {% if footer.instagram_url %}
-            <a href="{{ footer.instagram_url }}" target="_blank" class="hover:text-pink-500"><i class="fab fa-instagram"></i></a>
-          {% endif %}
-          {% if footer.linkedin_url %}
-            <a href="{{ footer.linkedin_url }}" target="_blank" class="hover:text-blue-400"><i class="fab fa-linkedin"></i></a>
-          {% endif %}
+        {% if about %}
+        <section id="about" class="py-16 bg-gray-100">
+            <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
+                {% if about.image %}
+                    <div>
+                        <img src="{{ about.image.url }}" alt="{{ about.title }}" class="rounded-xl shadow-md w-full h-full object-cover" />
+                    </div>
+                {% endif %}
+                <div class="p-6">
+                    <h2 class="text-3xl font-bold mb-4 text-gray-900">{{ about.title }}</h2>
+                    <p class="text-lg text-gray-700 leading-relaxed">{{ about.content }}</p>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+    </main>
+
+    <footer class="bg-gray-900 text-white py-10 mt-10">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <h3 class="text-xl font-semibold mb-4">Quick Links</h3>
+                <ul class="text-sm text-gray-300 space-y-2">
+                    <li><a href="{% url 'home' %}" class="hover:text-white transition-colors">Home</a></li>
+                    <li><a href="/about/" class="hover:text-white transition-colors">About</a></li>
+                    <li><a href="/contact/" class="hover:text-white transition-colors">Contact</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-semibold mb-4">Follow Us</h3>
+                <div class="flex space-x-4 text-2xl">
+                    {% if footer.facebook_url %}
+                        <a href="{{ footer.facebook_url }}" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Facebook" class="hover:text-blue-500 transition-colors"><i class="fab fa-facebook-f"></i></a>
+                    {% endif %}
+                    {% if footer.instagram_url %}
+                        <a href="{{ footer.instagram_url }}" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram" class="hover:text-pink-500 transition-colors"><i class="fab fa-instagram"></i></a>
+                    {% endif %}
+                    {% if footer.linkedin_url %}
+                        <a href="{{ footer.linkedin_url }}" target="_blank" rel="noopener noreferrer" aria-label="Follow us on LinkedIn" class="hover:text-blue-400 transition-colors"><i class="fab fa-linkedin-in"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if site_settings.address or site_settings.phone %}
+            <div>
+                <h3 class="text-xl font-semibold mb-4">Contact Us</h3>
+                <ul class="text-sm text-gray-300 space-y-2">
+                    {% if site_settings.address %}
+                        <li class="flex items-start"><i class="fas fa-map-marker-alt mt-1 mr-2 text-white/70"></i><span>{{ site_settings.address|linebreaksbr }}</span></li>
+                    {% endif %}
+                    {% if site_settings.phone %}
+                        <li class="flex items-center"><i class="fas fa-phone-alt mr-2 text-white/70"></i><a href="tel:{{ site_settings.phone }}" class="hover:text-white transition-colors">{{ site_settings.phone }}</a></li>
+                    {% endif %}
+                    {% if site_settings.email %}
+                        <li class="flex items-center"><i class="fas fa-envelope mr-2 text-white/70"></i><a href="mailto:{{ site_settings.email }}" class="hover:text-white transition-colors">{{ site_settings.email }}</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
         </div>
-      </div>
+        <div class="text-center text-sm text-gray-500 mt-8 border-t border-gray-800 pt-6">
+            &copy; {% now "Y" %} {{ site_settings.site_name }}. All rights reserved.
+        </div>
+    </footer>
+
+
+    <div id="toast-msg" class="fixed bottom-6 right-6 z-50 hidden bg-green-600 text-white font-medium px-5 py-3 rounded-lg shadow-xl transition-all duration-500 opacity-0">
+        Message here
     </div>
-  </footer>
 
-  <!-- Toast Message -->
-  <div id="toast-msg" class="fixed bottom-6 right-6 z-50 hidden bg-green-600 text-white font-medium px-5 py-3 rounded-lg shadow-xl transition-all duration-500 opacity-0">
-    Message here
-  </div>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
 
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const menuToggle = document.getElementById("menu-toggle");
+            const mobileMenu = document.getElementById("mobile-menu");
+            const searchToggleDesktop = document.getElementById("search-toggle-desktop");
+            const searchToggleMobile = document.getElementById("search-toggle-mobile");
+            const searchBarContainer = document.getElementById("search-bar-container");
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const toggle = document.getElementById("menu-toggle");
-      const menu = document.getElementById("mobile-menu");
+            // Toggle mobile menu
+            if (menuToggle && mobileMenu) {
+                menuToggle.addEventListener("click", () => {
+                    mobileMenu.classList.toggle("hidden");
+                    searchBarContainer.classList.add("hidden");
+                });
+            }
 
-      if (toggle && menu) {
-        toggle.addEventListener("click", () => {
-          menu.classList.toggle("hidden");
+            // Toggle desktop search bar
+            if (searchToggleDesktop && searchBarContainer) {
+                searchToggleDesktop.addEventListener("click", () => {
+                    searchBarContainer.classList.toggle("hidden");
+                });
+            }
+
+            // Toggle mobile search bar
+            if (searchToggleMobile && searchBarContainer) {
+                searchToggleMobile.addEventListener("click", () => {
+                    searchBarContainer.classList.toggle("hidden");
+                    mobileMenu.classList.add("hidden");
+                });
+            }
         });
-      }
-    });
-  </script>
+    </script>
 
-  {% block extra_scripts %}{% endblock %}
+    {% block extra_scripts %}{% endblock %}
+
+    <a href="https://wa.me/+91 98255 53565" target="_blank" id="whatsapp-button" class="fixed bottom-10 right-10 z-50 cursor-pointer w-14 h-14 flex items-center justify-center bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-8 h-8" viewBox="0 0 24 24">
+            <path d="M20.52 3.48A11.78 11.78 0 0012 0C5.37 0 0 5.37 0 12c0 2.12.56 4.14 1.63 5.92L0 24l6.36-1.63A11.87 11.87 0 0012 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.2-3.48-8.52zM12 22a10 10 0 01-5.22-1.43l-.37-.22-3.78.97.98-3.68-.24-.38A10 10 0 1122 12 10 10 0 0112 22zm5.34-7.17c-.28-.14-1.65-.81-1.91-.91s-.47-.14-.67.14-.77.91-.95 1.1-.35.21-.64.07a8.57 8.57 0 01-2.53-1.55 9.11 9.11 0 01-1.69-2.1c-.18-.31 0-.48.13-.63.14-.14.31-.35.47-.52.15-.17.2-.28.3-.47.1-.17.05-.32-.02-.46-.07-.14-.66-1.58-.91-2.18-.24-.57-.48-.49-.66-.5-.17 0-.37 0-.56 0s-.46.07-.7.32a2.93 2.93 0 00-1.04 2.45c0 1.44.68 2.83 1.54 3.85a13.32 13.32 0 004.57 3.57c.64.28 1.11.45 1.49.58.63.21 1.2.18 1.65.11.5-.08 1.65-.67 1.88-1.32.23-.66.23-1.22.16-1.33-.07-.11-.27-.17-.56-.3z"/>
+        </svg>
+    </a>
+    
+    <script>
+        const whatsappBtn = document.getElementById('whatsapp-button');
+        let isDragging = false;
+        let offset = { x: 0, y: 0 };
+
+        whatsappBtn.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offset.x = e.clientX - whatsappBtn.getBoundingClientRect().left;
+            offset.y = e.clientY - whatsappBtn.getBoundingClientRect().top;
+            whatsappBtn.style.transition = 'none';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                let newX = e.clientX - offset.x;
+                let newY = e.clientY - offset.y;
+                let maxX = window.innerWidth - whatsappBtn.offsetWidth - 20; // 20px padding from the right
+                let maxY = window.innerHeight - whatsappBtn.offsetHeight - 20; // 20px padding from the bottom
+
+                // Clamp new position to stay within the viewport
+                newX = Math.max(20, Math.min(newX, maxX));
+                newY = Math.max(20, Math.min(newY, maxY));
+
+                whatsappBtn.style.left = `${newX}px`;
+                whatsappBtn.style.top = `${newY}px`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                whatsappBtn.style.transition = 'all 0.2s ease';
+            }
+        });
+    </script>
 </body>
-<a href="https://wa.me/6355997080" target="_blank" id="whatsapp-button" class="fixed bottom-10 right-10 z-50 cursor-pointer w-16 h-16 flex items-center justify-center bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-8 h-8" viewBox="0 0 24 24">
-        <path d="M20.52 3.48A11.78 11.78 0 0012 0C5.37 0 0 5.37 0 12c0 2.12.56 4.14 1.63 5.92L0 24l6.36-1.63A11.87 11.87 0 0012 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.2-3.48-8.52zM12 22a10 10 0 01-5.22-1.43l-.37-.22-3.78.97.98-3.68-.24-.38A10 10 0 1122 12 10 10 0 0112 22zm5.34-7.17c-.28-.14-1.65-.81-1.91-.91s-.47-.14-.67.14-.77.91-.95 1.1-.35.21-.64.07a8.57 8.57 0 01-2.53-1.55 9.11 9.11 0 01-1.69-2.1c-.18-.31 0-.48.13-.63.14-.14.31-.35.47-.52.15-.17.2-.28.3-.47.1-.17.05-.32-.02-.46-.07-.14-.66-1.58-.91-2.18-.24-.57-.48-.49-.66-.5-.17 0-.37 0-.56 0s-.46.07-.7.32a2.93 2.93 0 00-1.04 2.45c0 1.44.68 2.83 1.54 3.85a13.32 13.32 0 004.57 3.57c.64.28 1.11.45 1.49.58.63.21 1.2.18 1.65.11.5-.08 1.65-.67 1.88-1.32.23-.66.23-1.22.16-1.33-.07-.11-.27-.17-.56-.3z"/>
-    </svg>
-</a>
-
-<script>
-    const whatsappBtn = document.getElementById('whatsapp-button');
-
-    let isDragging = false;
-    let offset = { x: 0, y: 0 };
-
-    whatsappBtn.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        offset.x = e.clientX - whatsappBtn.getBoundingClientRect().left;
-        offset.y = e.clientY - whatsappBtn.getBoundingClientRect().top;
-        whatsappBtn.style.transition = 'none';
-    });
-
-    document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-            whatsappBtn.style.left = `${e.clientX - offset.x}px`;
-            whatsappBtn.style.top = `${e.clientY - offset.y}px`;
-        }
-    });
-
-    document.addEventListener('mouseup', () => {
-        if (isDragging) {
-            isDragging = false;
-            whatsappBtn.style.transition = 'all 0.2s ease';
-        }
-    });
-</script>
-
-<style>
-    #whatsapp-button {
-        width: 50px;
-        height: 50px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2rem;
-        z-index: 50;
-        cursor: pointer;
-    }
-
-    #whatsapp-button:hover {
-        transform: scale(1.1);
-        transition: transform 0.2s;
-    }
-</style>
 </html>

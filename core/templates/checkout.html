@@ -1,6 +1,7 @@
-{% extends 'core/base.html' %}
+{% extends 'index.html' %}
 {% load static %}
 {% load custom_tags %}
+
 {% block content %}
 <div class="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
     <h2 class="text-2xl font-bold mb-4">Checkout for Order #{{ order.id }}</h2>
@@ -23,7 +24,9 @@
                 <td class="px-2 py-1 border">₹{{ item.product.price|multiply:item.quantity }}</td>
             </tr>
             {% empty %}
-            <tr><td colspan="4" class="text-center py-2">Your cart is empty!</td></tr>
+            <tr>
+                <td colspan="4" class="text-center py-2">Your cart is empty!</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
@@ -37,12 +40,12 @@
     <form id="checkout-form">
         <div class="mb-4">
             <label>Delivery Address:</label>
-            <textarea name="address" id="address" class="w-full border p-2 rounded" required></textarea>
+            <textarea name="address" id="address" class="w-full border p-2 rounded" required>{{ order.delivery_address }}</textarea>
         </div>
 
         <div class="mb-4">
             <label>Phone Number:</label>
-            <input type="text" name="phone" id="phone" class="w-full border p-2 rounded" required>
+            <input type="text" name="phone" id="phone" class="w-full border p-2 rounded" value="{{ user_phone }}" required>
         </div>
 
         <button id="rzp-button" type="button" class="bg-purple-600 text-white px-4 py-2 rounded">
@@ -56,7 +59,7 @@
 document.getElementById('rzp-button').onclick = function(e){
     var options = {
         "key": "{{ razorpay_key_id }}",
-        "amount": {{ grand_total|multiply:100|floatformat:"0" }},
+        "amount": "{{ grand_total|floatformat:'0' }}00",  // Razorpay requires paise
         "currency": "INR",
         "name": "The Floral Studio",
         "description": "Order #{{ order.id }}",
@@ -85,8 +88,8 @@ document.getElementById('rzp-button').onclick = function(e){
         },
         "prefill": {
             "name": "{{ request.user.username }}",
-            "email": "{{ request.user.email }}",
-            "contact": ""
+            "email": "{{ user_email }}",
+            "contact": "{{ user_phone }}"
         },
         "theme": {
             "color": "#7c3aed"
@@ -97,6 +100,5 @@ document.getElementById('rzp-button').onclick = function(e){
     e.preventDefault();
 }
 </script>
-
 
 {% endblock %}

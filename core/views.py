@@ -172,42 +172,44 @@ def checkout_address(request, order_id):
 @login_required
 def checkout_payment(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    # Check delivery address
     if not order.delivery_address:
         messages.error(request, "Please enter your delivery address first.")
         return redirect('checkout_address', order_id=order.id)
 
+    # Calculate totals
     subtotal = sum(item.product.price * item.quantity for item in order.items.all())
     delivery_charge = 50
     grand_total = subtotal + delivery_charge
-    amount_in_paise = int(grand_total * 100)
+    amount_in_paise = int(grand_total * 100)  # Razorpay expects paise
+
+    # Initialize Razorpay client
     client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
     try:
+        # Create Razorpay order
         razorpay_order = client.order.create({
             "amount": amount_in_paise,
             "currency": "INR",
             "receipt": f"order_{order.id}",
             "payment_capture": 1
         })
-        payment, created = Payment.objects.get_or_create(
+
+        # Always create a new Payment record for this attempt
+        payment = Payment.objects.create(
             order=order,
-            defaults={
-                'user': request.user,
-                'amount': grand_total,
-                'razorpay_order_id': razorpay_order['id'],
-                'status': 'created'
-            }
+            user=request.user,
+            amount=grand_total,
+            razorpay_order_id=razorpay_order['id'],
+            status='created'
         )
-        if not created:
-            payment.razorpay_order_id = razorpay_order['id']
-            payment.amount = grand_total
-            payment.status = 'created'
-            payment.save()
 
     except Exception as e:
-        messages.error(request, f"Payment gateway error: {e}")
+        messages.error(request, f"Payment gateway error: {str(e)}")
         return redirect('checkout_address', order_id=order.id)
 
+    # Pass data to template
     context = {
         "order": order,
         "total": subtotal,
@@ -215,11 +217,10 @@ def checkout_payment(request, order_id):
         "grand_total": grand_total,
         "razorpay_order_id": razorpay_order['id'],
         "razorpay_key_id": settings.RAZORPAY_KEY_ID,
-        "user_email": request.user.email,
-        "user_phone": request.user.profile.phone_number if hasattr(request.user, 'profile') else ""
+        "user_email": request.user.email or "",
+        "user_phone": getattr(getattr(request.user, 'profile', None), 'phone_number', "")
     }
     return render(request, "checkout_payment.html", context)
-
 
 # ======================
 # PAYMENT CALLBACKS
@@ -403,3 +404,31 @@ def access_floral_admin(request):
 
 def order_success(request):
     return render(request, 'order_success.html')
+
+
+
+def search_view(request):
+    query = request.GET.get('q')
+    results = []
+    if query:
+        # Filter products where the name or description contains the query
+        results = Product.objects.filter(name__icontains=query) | Product.objects.filter(description__icontains=query)
+        # You can add more fields to search on if you want
+
+    context = {
+        'query': query,
+        'results': results,
+    }
+    return render(request, 'search_results.html', context)
+
+
+
+def product_detail_view(request, pk):
+    """
+    Retrieves and displays a single product's details.
+    """
+    product = get_object_or_404(Product, pk=pk)
+    context = {
+        'product': product
+    }
+    return render(request, 'cart.html', context)

@@ -5,6 +5,7 @@ from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LogoutView
 from core import admin_views
+from . import views
 
 urlpatterns = [
     # 🏠 Home page & static pages
@@ -55,4 +56,8 @@ urlpatterns = [
     # Admin dashboard
     path('admin-dashboard/', admin_views.admin_dashboard, name='admin_dashboard'),
     path("access-admin/", views.access_floral_admin, name="access_floral_admin"),
+
+     path('search/', views.search_view, name='search'),
+
+     path('products/<int:pk>/', views.product_detail_view, name='product_detail')
 ]
