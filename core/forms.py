@@ -1,27 +1,36 @@
 from django import forms
-from .models import NewsletterEmail
-from .models import Order
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from .models import Order, Address
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-class NewsletterForm(forms.ModelForm):
-    class Meta:
-        model = NewsletterEmail
-        fields = ['email']
-        widgets = {
-            'email': forms.EmailInput(attrs={
-                'placeholder': 'Enter your email',
-                'class': 'form-control',
-            })
-        }
-class OrderForm(forms.ModelForm):
-    class Meta:
-        model = Order
-        fields = ['full_name', 'email', 'address', 'city', 'state', 'postal_code']
-
+# -------------------------------
+# Custom Signup Form
+# -------------------------------
 class CustomSignupForm(UserCreationForm):
-    email = forms.EmailField(required=True)
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2')
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'password1': forms.PasswordInput(attrs={'class': 'form-control'}),
+            'password2': forms.PasswordInput(attrs={'class': 'form-control'}),
+        }
+
+# -------------------------------
+# Address Form
+# -------------------------------
+class AddressForm(forms.ModelForm):
+    class Meta:
+        model = Address
+        exclude = ['user']
+        widgets = {
+            'full_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
+            'street_address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Street Address'}),
+            'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'}),
+            'state': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'State'}),
+            'pincode': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Pincode'}),
+            'country': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Country'}),
+        }

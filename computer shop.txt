@@ -1,0 +1,23 @@
+admin-techmart
+password-ourshop@2025
+
+
+for delivery-- 
+delivery patners- Blue Dart,Shiprocket
+
+
+
+on live server-
+1]ssh root@31.97.233.107
+2] cd /var/www{computershop  computershop.zip  demo  html  techmart}
+3]cd techmart
+4]cd templates
+5] ls{store  success.html}
+6]cd store
+7]ls{about.html       checkout.html  order_history.html    profile.html
+add_review.html  contact.html   payment.html          register.html
+base.html        home.html      payment_success.html  shop.html
+cart.html        login.html     product_detail.html   signup.html}
+8]nano base.html
+
+new-(venv) vasu@LAPTOP-7F8D9N6D:~/projects/techmart/techmart$
