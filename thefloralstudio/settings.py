@@ -39,7 +39,7 @@ SECRET_KEY = 'django-insecure-^02m5j6wu!wjcz$=7+di)!6^@k3eo^r7zpe-cyoaxjk5urh&39
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["thefloralstudio.in","www.thefloralstudio.in","192.168.50.126","127.0.0.1","192.168.117.126"]
+ALLOWED_HOSTS = ["thefloralstudio.in","www.thefloralstudio.in","192.168.50.126","127.0.0.1","192.168.117.126","31.97.233.107"]
 
 # Application definition
 INSTALLED_APPS = [
